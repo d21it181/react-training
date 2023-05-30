@@ -7,11 +7,17 @@ import { Avatar, Popover } from "@mui/material";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Apple = () => {
   // const [name, setName] = useState();
   // const [email, setEmail] = useState();
   const [open, setOpen] = useState(false);
+
+  const [user, setUser] = useState([]);
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const Navigate = useNavigate();
 
@@ -20,6 +26,12 @@ export const Apple = () => {
     // return () => {
     //   console.log("The old value of Name : ", name);
     // };
+    axios.get('https://jsonplaceholder.typicode.com/posts', {"username": "Bret",
+    "email": "Sincere@april.biz"})
+      .then(function(response) {
+        setUser(response.data);
+      });
+
   }, []);
 
   const validationSchema = Yup.object().shape({
@@ -32,9 +44,45 @@ export const Apple = () => {
     email: "",
   };
 
-  const onFormSubmit = (values) => {
-    console.log("On the form submitted", values);
-    alert("Form Submmited");
+  const onFormSubmit = async (values) => {
+    // console.log("On the form submitted", values);
+    // alert(values.email);
+
+    const requestData = {
+      userName : values.name,
+      userEmail : values.email,
+    };
+
+       const res = await  axios.post("https://jsonplaceholder.typicode.com/posts", requestData);
+    
+    
+      if(res.status === 201){
+        toast.success("API call is completed successfully", {
+          position : "top-right",
+          autoClose : 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          draggable:true,
+          theme:"light",
+          progress:undefined,
+          
+        });
+      }
+   
+    axios.delete("https://jsonplaceholder.typicode.com/posts/1").then((res)=>{
+      if(res.status === 200){
+        toast.success("Data is deleted successfully", {
+          position : "top-right",
+          autoClose : 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          draggable:true,
+          theme:"light",
+          progress:undefined,
+          
+        });
+      }
+    });
   };
 
   const handleClick = (event) => {
@@ -54,6 +102,7 @@ export const Apple = () => {
         padding: 5,
       }}
     >
+      <ToastContainer/>
       <div
         style={{
           display: "flex",
@@ -70,7 +119,7 @@ export const Apple = () => {
             columnGap: 5,
           }}
         >
-          <Avatar sx={{ bgcolor: "blue" }}>MB</Avatar>
+          <Avatar sx={{ bgcolor: "blue" }}>MK</Avatar>
         </div>
       </div>
       <div
@@ -151,7 +200,14 @@ export const Apple = () => {
             </form>
           )}
         </Formik>
+       <div> {user.map((item) => (
+          <div key={item.id}>
+              <h3>{item.title}</h3>
+            <span>{item.body}</span>
+            </div>
+        ))}</div>
       </div>
     </div>
   );
 };
+  
